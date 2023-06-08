@@ -1,0 +1,44 @@
+name: Push Docker Image to ECR
+on:
+    push:
+      branches: [ main ]
+    workflow_dispatch:
+jobs:
+    build:
+        name: Build Dockerfile and push to ECR
+        runs-on: ubuntu-latest
+    
+        steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v3
+
+        - name: Set up QEMU
+          uses: docker/setup-qemu-action@v1
+  
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v1
+  
+        # https://github.com/aws-actions/configure-aws-credentials (Community) 
+        - name: "Configure AWS Credentials"
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.NONPROD_AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.NONPROD_AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-west-2
+  
+        # https://github.com/aws-actions/amazon-ecr-login (Community)
+        - name: "Login To Amazon ECR"
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v1
+  
+        # In this section, we are Preparing Docker images  and push AWS ECR 
+        - name: "Prepare Docker Images and push to Amazon ECR"
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: nonprod-reachtalent-api
+            IMAGE_TAG: ${{ github.run_id }}
+          run: |
+            ls -la
+            docker build -f Dockerfile --no-cache -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            docker rmi $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

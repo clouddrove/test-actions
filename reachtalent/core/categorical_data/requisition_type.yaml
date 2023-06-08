@@ -1,0 +1,13 @@
+label: Requisition Type
+category_id: 2
+description: Employee pay categorization for Fair Labor Standards Act requirements.
+items:
+  full_time:
+    label: Full Time
+    description: Employees working full time.
+  part_time:
+    label: Part-Time
+    description: Employees working on part time schedules.
+  '1099':
+    label: '1099'
+    description: Employees working on contractual terms

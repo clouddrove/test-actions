@@ -1,0 +1,91 @@
+model: 'ContractTermDefinition'
+key_field: 'ref'
+items:
+  markup_jobclass_events_pct:
+    type: 'percent'
+    label: 'Events Markup (Percent)'
+    description: 'Percent Markup on Positions classified as Events'
+  markup_jobclass_events_flat:
+    type: 'decimal'
+    label: 'Events Markup (Flat)'
+    description: 'Flat Markup on Positions classified as Events'
+  markup_jobclass_it_pct:
+    type: 'percent'
+    label: 'IT Markup (Percent)'
+    description: 'Percent Markup on Positions classified as IT'
+  markup_jobclass_it_flat:
+    type: 'decimal'
+    label: 'IT Markup (Flat)'
+    description: 'Flat Markup on Positions classified as IT'
+  markup_jobclass_engineering_pct:
+    type: 'percent'
+    label: 'Engineering Markup (Percent)'
+    description: 'Percent Markup on Positions classified as Engineering'
+  markup_jobclass_engineering_flat:
+    type: 'decimal'
+    label: 'Engineering Markup (Flat)'
+    description: 'Flat Markup on Positions classified as Engineering'
+  markup_jobclass_light_industrial_pct:
+    type: 'percent'
+    label: 'Light Industrial Markup (Percent)'
+    description: 'Percent Markup on Positions classified as Light Industrial'
+  markup_jobclass_light_industrial_flat:
+    type: 'percent'
+    label: 'Light Industrial Markup (Flat)'
+    description: 'Percent Markup on Positions classified as Light Industrial'
+  markup_jobclass_heavy_industrial_pct:
+    type: 'percent'
+    label: 'Heavy Industrial Markup (Percent)'
+    description: 'Percent Markup on Positions classified as Heavy Industrial'
+  markup_jobclass_heavy_industrial_flat:
+    type: 'decimal'
+    label: 'Heavy Industrial Markup (Flat)'
+    description: 'Flat Markup on Positions classified as Heavy Industrial'
+  markup_jobclass_administrative_pct:
+    type: 'percent'
+    label: 'Administrative Markup (Percent)'
+    description: 'Percent Markup on Positions classified as Light Administrative'
+  markup_jobclass_administrative_flat:
+    type: 'decimal'
+    label: 'Administrative Markup (Flat)'
+    description: 'Flat Markup on Positions classified as Administrative'
+  markup_jobclass_accounting_pct:
+    type: 'percent'
+    label: 'Accounting Markup (Percent)'
+    description: 'Percent Markup on Positions classified as Accounting'
+  markup_jobclass_accounting_flat:
+    type: 'decimal'
+    label: 'Accounting Markup (Flat)'
+    description: 'Flat Markup on Positions classified as Accounting'
+  markup_jobclass_creative_pct:
+    type: 'percent'
+    label: 'Creative Markup (Percent)'
+    description: 'Percent Markup on Positions classified as Creative'
+  markup_jobclass_creative_flat:
+    type: 'decimal'
+    label: 'Creative Markup (Flat)'
+    description: 'Flat Markup on Positions classified as Creative'
+  markup_jobclass_legal_pct:
+    type: 'percent'
+    label: 'Legal Markup (Percent)'
+    description: 'Percent Markup on Positions classified as Legal'
+  markup_jobclass_legal_flat:
+    type: 'decimal'
+    label: 'Legal Markup (Flat)'
+    description: 'Flat Markup on Positions classified as Legal'
+  markup_jobclass_driver_pct:
+    type: 'percent'
+    label: 'Driver Markup (Percent)'
+    description: 'Percent Markup on Positions classified as Driver'
+  markup_jobclass_driver_flat:
+    type: 'decimal'
+    label: 'Driver Markup (Flat)'
+    description: 'Flat Markup on Positions classified as Driver'
+  markup_jobclass_sales_pct:
+    type: 'percent'
+    label: 'Sales Markup (Percent)'
+    description: 'Percent Markup on Positions classified as Sales'
+  markup_jobclass_sales_flat:
+    type: 'decimal'
+    label: 'Sales Markup (Flat)'
+    description: 'Flat Markup on Positions classified as Sales'

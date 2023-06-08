@@ -1,0 +1,151 @@
+@startuml
+
+actor User as user
+participant "ReachTalent Vue.js" as frontend
+participant "ReachTalent Flask API" as backend
+participant "Database" as db
+participant "Email Relay" as smtp
+
+user -> frontend: GET /signup
+|||
+frontend --> user: render Sign Up Form
+note right: form fields:\n\
+ - full name\n\
+ - email\n\
+ - password\n\
+ - password_verify\n\
+
+user -> frontend: fills in form fields
+opt
+frontend -> frontend: validates form fields onchange
+note right: notes:\n\
+ - all fields required\n\
+ - full name is > min length (4) \n\
+ - email matches naive email regex ^\w+@\w+\..*$\n\
+ - password meets complexity criteria (Tentative):\n\
+   - 8 <= length < 200\n\
+   - contains one of each:\n\
+     - lowercase, uppercase, digit, special character\n\
+ - password_verify matches password
+  frontend --> user: render frontend field errors
+end
+
+user -> frontend: clicks submit
+
+group Register New User
+  frontend -> backend: POST /api/auth/signup\n\
+{name, email, password}
+
+  group If Any Field is Invalid
+    backend --> frontend: HTTP 400\n\
+{\n\
+  "code": 400\n\
+  "name": "Invalid Request"\n\
+  "errors": {\n\
+    "name": ["Missing field is required."],\n\
+    "<field_name>": [<error string 1>, <error string 2>]\n\
+  }\n\
+}
+  note right: TODO: Implement Anti-CSRF\n\
+This may be resolved with the use of\n\
+reCAPTCHA, which should be added\n\
+anyways to prevent login abuse.
+frontend --> user: render error for each error\n\
+to corresponding field
+  end
+
+  group Reveal Nothing Response
+    else user record exists for email
+    backend -> smtp: Send Email notify existing user
+    note right: Dear <User Full Name>,\n\
+We received an attempt to create a new \n\
+account. If this was you, please login here:\n\
+http://reachtalent.com/login\n\
+If you forgot your password, reset here:\n\
+http://reachtalent.com/password_reset\n\n\
+If this was not you, please ignore.
+  else success
+    backend -> db: create user record
+    backend -> smtp: send email verification message
+    note right: "Hello <User Full Name>,\n\
+Welcome to ReachTalent. Please click the \n\
+following link to verify your account:\n\
+http://reachtalent.com/verify_email?token=<JWT token>"\n\n\
+JWT Token Payload contains:\n\
+{\n\
+  "use": "passreset",\n\
+  "exp": <current timestamp + 24 hours>,\n\
+  "sub": <user.id>,\n\
+  "rti": {\n\
+    "email": <user.email>\n\
+  },\n\
+}
+  else finally
+    backend --> frontend: HTTP 200\n{}
+    frontend --> user: Render User Registration Successful
+    note right: Banner "User Register Accepted!"\n\
+Sub Header: "You will receive an email\n\
+to verify your email. But you may login now"\n\
+Button with Text "Login" links to /login
+
+  end
+
+  group Before Email Verified
+    user -> frontend: GET /login
+    frontend --> user: render login form
+    note right: form fields:\n\
+ - email\n\
+ - password
+  user -> frontend: submits login form
+  frontend -> backend: POST /api/auth/login
+    note right: TODO: Implement Anti-CSRF\n\
+ReCAPTCHA may be sufficient here too.
+    backend --> frontend: HTTP 200\n{}\n\
+Set-Cookie AuthToken=<JWT Token>; Secure; SameSite=strict
+    note right: JWT Payload:\n\
+{\n\
+  "use": "auth",\n\
+  "exp": <current timestamp + 1 hour>,\n\
+  "sub": <user.id>,\n\
+  "rti": {\n\
+    "email": <user.email>\n\
+    "email_verified": false\n\
+  },\n\
+}
+    frontend --> user: Render "limited" homepage
+  end
+
+  group Email Verification
+    user -> frontend: GET /verify_email?token=<JWT Token from email>
+    frontend -> backend: POST /api/auth/email_verify\n\
+{\n\
+  "token": <JWT Token from query string>\n\
+}
+    group Verification Failures
+
+      alt token invalid
+        backend --> frontend: HTTP 400\n"Invalid request"
+      else user does not exist
+        backend -> db: get user by email
+        return (no record)
+        backend --> frontend: HTTP 400\n"Unable to verify email"
+      else user id does not match token
+        backend -> db: get user by email
+        return
+        backend->backend: compare user record id with sub in token
+        backend --> frontend: HTTP 400\n"Unable to verify email"
+      end
+    frontend --> user: Render Generic Error, redirect to /login
+  end
+
+  group Verification Success
+    backend -> db: get user record
+    return
+    backend -> db: set user.email_verified=true
+    backend --> frontend: HTTP 200\n{}
+    frontend -> user: Show Email Verified message
+  end
+
+end
+
+@enduml

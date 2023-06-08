@@ -1,0 +1,176 @@
+@startuml
+
+actor User as user
+participant "ReachTalent Vue.js" as frontend
+participant "ReachTalent Flask API" as backend
+participant "Database" as database
+participant "OAuth Provider" as provider
+
+user -> frontend: GET /
+frontend --> user: Renders Login page with links for:\n\
+ - Google\n\
+ - LinkedIn\n\
+ - Facebook\n\
+ - Apple
+user -> frontend: User clicks one of the social auth links
+|||
+user -> backend: GET /api/auth/<provider_name>
+backend --> user: HTTP 302 https://auth.example.org/authorize?\n\
+    response_type=code&\n\
+    scope=name+email&\n\
+    state=<random csrf token>&\n\
+    client_id=<RTI's OAuth Client ID for the provider>&\n\
+    redirect_uri=https%3A%2F%2Flocal.reachtalent.com%2Fapi%2Fauth%2F<provider_name>%2Fauthorized\n\
+ Set-Cookie session=<signed session payload>; Domain=.local.reachtalent.com; HttpOnly; Path=/
+note right: Session Payload includes the csrf\n\
+token sent in the state parameter\n\
+to be verified when the user returns to\n\
+the /authorized endpoint
+|||
+user -> provider: GET https://auth.example.org/authorize?\n\
+    response_type=code&\n\
+    scope=name+email&\n\
+    state=<random csrf token>&\n\
+    client_id=<RTI's OAuth Client ID for the provider>&\n\
+    redirect_uri=https%3A%2F%2Flocal.reachtalent.com%2Fapi%2Fauth%2F<provider_name>%2Fauthorized
+
+opt Default Provider Success Response
+
+provider --> user: HTTP 302 https://local.reachtalent.com/api/auth/<provider_name>/authorized?state=<csrf token>
+user -> backend: GET https://local.reachtalent.com/api/auth/<provider_name>/authorized?state=<csrf token>&code=<authorization code>
+activate backend
+end
+
+opt Apple Success Response
+provider -> backend: POST https://local.reachtalent.com/api/auth/<provider_name>/authorized\n\
+state=<csrf token>&\n\
+code=<authorization code>\n\
+user={\n\
+  "name": {\n\
+    "firstName": "Robert",\n\
+    "lastName": "Ramsay"\n\
+  },\n\
+  "email":"ramsay@reachtalent.com"\n\
+}
+note left: Apple requires a form-post response if requesting\n\
+`name` or `email` scopes.\n\n\
+Apple only sends `name` via the `user` payload in\n\
+form post response.\n\n\
+Apple only sends the `user` payload on initial \n\
+authorization of AppleID with the app for the user.
+end
+|||
+
+group Exchange Authorization Code for Token and Get User Info
+
+backend -> provider: POST https://auth.example.org/token\n\
+  state=<csrf token>&\n\
+  grant_type=authorization_code&\n\
+  code=<authorization code>&\n\
+  redirect_uri=<redirect_uri from initial auth request>&\n\
+  client_id=<RTI's client_id for provider>&\n\
+  client_secret=<RTI's client_secret for provider>
+
+provider --> backend: Access Token Response:\n\
+  {\n\
+    "access_token": "<access token>",\n\
+    "refresh_token": "<refresh token>",\n\
+    "expires_in": <seconds until expiration>,\n\
+    "expires_at": <timestamp of expiration>,\n\
+    "id_token": <JWT id token>,\n\
+  }
+note left: Only Access Token should be expected.\n
+else Google User Info
+backend -> provider: GET /oauth2/v1/userinfo\n\
+Authorization: Bearer <access_token>
+provider --> backend: User Payload:\n\
+{\n\
+  "id": "106289769395363482359",\n\
+  "email": "robert@reachtalent.com",\n\
+  "verified_email": True,\n\
+  "name": "Robert Ramsay",\n\
+  "given_name": "Robert",\n\
+  "family_name": "Ramsay",\n\
+  "picture": "https://lh3.googleusercontent.com...",\n\
+  "locale": "en",\n\
+  "hd": "reachtalent.com"\n\
+}
+
+else LinkedIn User Info
+backend -> provider: GET /linkedin/v2/me\n\
+Authorization: Bearer <access_token>
+provider --> backend: User Payload:\n\
+{\n\
+ "id": "xbdGDnDcG_",\n\
+ "localizedFirstName": "Robert",\n\
+ "localizedLastName": "Ramsay",\n\
+ "profilePicture": {\n\
+   "displayImage": "urn:li:digitalmediaAsset:C56..."\n\
+ },\n\
+ "firstName": {\n\
+   "localized": {"en_US": "Robert"},\n\
+   "preferredLocale": {"country": "US", "language": "en"}},\n\
+ "lastName": {\n\
+   "localized": {"en_US": "Ramsay"},\n\
+   "preferredLocale": {"country": "US", "language": "en"}}\n\
+}
+|||
+backend -> provider: GET /linkedin/v2/emailAddress\n\
+Authorization: Bearer <access_token>
+provider --> backend: Email Payload:\n\
+{\n\
+  "elements": [\n\
+    {\n\
+      "handle~": {"emailAddress": "durandal@gmail.com"},\n\
+      "handle": "urn:li:emailAddress:418496997"\n\
+    }\n\
+  ]\n\
+}
+
+else Facebook User Info
+backend -> provider: GET /me?fields=id,name,email\n\
+Authorization: Bearer <access_token>
+provider --> backend: User Payload:\n\
+{\n\
+  "id": "10112332256181613",\n\
+  "name": "Robert Ramsay",\n\
+  "email": "durandal@gmail.com"\n\
+}
+
+else Apple User Info
+
+note over backend, provider: For AppleID, `name` is used from previous authorization \n\
+response while `email` and `email_verified` are parsed from id_token.
+
+end
+
+group OAuth Unified Registration and Authentication
+
+  alt Get or Create UserProfile
+    backend -> database: Query UserProfile by Provider ID and user's ext_ref from provider
+    database --> backend: UserProfile with attached User or NoRecordFound
+
+    alt Get or Create User based on OAuth user info
+      backend -> database: Query User by email
+      database --> backend: User or NoRecordFound
+
+      alt Create User
+        backend -> database: Create User(name, email, auth_provider_id)
+        database --> backend: user.id
+      end
+      backend -> database: Create UserProfile(provider_id, ext_ref, user_id, user_info)
+
+    end
+
+  end
+
+  backend -> database: Set User.auth_provider_id = provider_id\nif not email verified and provider is verified:\n  User.email_verified = true
+
+  backend --> user: HTTP 302 /\n\
+Set-Cookie AuthToken=<RTI JWT>
+
+  deactivate backend
+
+end
+
+@enduml

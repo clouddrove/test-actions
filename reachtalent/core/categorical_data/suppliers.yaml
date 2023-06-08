@@ -1,0 +1,5 @@
+model: Supplier
+key_field: 'name'
+items:
+  reachtalent:
+    description: 'Reach Talent, Inc.'

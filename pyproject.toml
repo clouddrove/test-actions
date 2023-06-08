@@ -1,0 +1,52 @@
+[build-system]
+# Minimum requirements for the build system to execute.
+requires = ["setuptools", "wheel"]  # PEP 508 specifications.
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reachtalent"
+version = "0.0.1"
+requires-python = ">=3.10"
+dependencies = [
+    "Flask==2.2.2",
+    "Flask-SQLAlchemy==3.0.2",
+    "Flask-Migrate==4.0.1",
+    "Flask-Mail==0.9.1",
+    "flask_bcrypt==1.0.1",
+    "flask-marshmallow==0.14.0",
+    "Flask-Dance==6.2.0",
+    "SQLAlchemy[mypy]==1.4.46",
+    "psycopg2==2.9.5",
+    "alembic==1.9.2",
+    "gunicorn==20.1.0",
+    "marshmallow==3.19.0",
+    "marshmallow-sqlalchemy==0.28.1",
+    "apispec[marshmallow]==6.0.2",
+    "apispec-webframeworks==0.5.2",
+    "PyJWT==2.6.0",
+    "cryptography==39.0.1",
+    "webargs==8.2.0",
+    "simplejson==3.18.3",
+    "google-api-python-client==2.81.0",
+    "google-auth-httplib2==0.1.0",
+    "google-auth-oauthlib==1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==7.2.1",
+    "requests-mock==1.10.0",
+    "pip-tools==6.12.2",
+    "coverage==7.1.0",
+    "openapi-spec-validator==0.5.5",
+    "pytest-cov==4.0.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "."
+]
+
+[tool.coverage.run]
+branch = true
+source = ["reachtalent"]

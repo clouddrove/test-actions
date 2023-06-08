@@ -1,0 +1,13 @@
+label: Pay Scheme
+category_id: 1
+description: Employee pay categorization for Fair Labor Standards Act requirements.
+items:
+  exempt:
+    label: Exempt
+    description: Employees exempt from Fair Labor Standards Act overtime requirements.
+  nonexempt:
+    label: Non-Exempt
+    description: Employees exempt from Fair Labor Standards Act overtime requirements.
+  cpe:
+    label: Computer Professional Exempt
+    description: Employees who primarily work on Software and are exempt from Fair Labor Standards Act requirements but still have overtime benefits.

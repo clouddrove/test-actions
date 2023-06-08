@@ -1,0 +1,36 @@
+model: 'JobClassification'
+key_field: 'contract_term_prefix'
+items:
+    markup_jobclass_it_:
+      label:  'IT'
+      description: 'Tech Support and Administration'
+    markup_jobclass_engineering_:
+      label:  'Engineering'
+      description: 'Software Development'
+    markup_jobclass_light_industrial_:
+      label:  'Light Industrial'
+      description: 'Factories and construction'
+    markup_jobclass_heavy_industrial_:
+      label:  'Heavy Industrial'
+      description: 'Heavy machine operation'
+    markup_jobclass_administrative_:
+      label: 'Administrative'
+      description: 'Back Office, Human Resources'
+    markup_jobclass_accounting_:
+      label: 'Accounting'
+      description: 'Financial and accounting staff'
+    markup_jobclass_creative_:
+      label: 'Creative'
+      description: 'Art Department staff'
+    markup_jobclass_legal_:
+      label: 'Legal'
+      description: 'Paralegal and Attorneys'
+    markup_jobclass_driver_:
+      label: 'Driver'
+      description: 'Commercial Drivers and chauffeurs'
+    markup_jobclass_events_:
+      label: 'Events'
+      description: 'Event support staff'
+    markup_jobclass_sales_:
+      label: 'Sales'
+      description: 'Salesmen'

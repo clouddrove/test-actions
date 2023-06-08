@@ -1,0 +1,55 @@
+@startuml
+
+actor User as user
+participant "ReachTalent Vue.js" as frontend
+participant "ReachTalent Flask API" as backend
+
+user -> frontend: GET /
+
+
+group Check Active Authentication
+frontend -> frontend: isValid(document.cookie["AuthToken"])
+alt JWT Token valid
+frontend --> user: Render Home Page
+
+else JWT Token missing, invalid or expired
+frontend --> user: Redirect to /login
+user -> frontend: submits username & password form
+frontend -> backend: \
+POST /api/auth/login\n\
+{"username", "password"}
+|||
+alt Authentication Failure
+return HTTP 400: "Invalid Credentials"
+note right: This can happen for a variety of reasons:\n\
+- no user with that email\n\
+- password doesn't match\n\
+- user deactivated\n\
+But all should just say "Invalid Credentials"
+
+frontend --> user: Show generic authentication\n failure message
+|||
+else Authentication Success
+backend --> frontend: HTTP 200:\n\
+{}\n\
+Set-Cookie: AuthToken="jwt"; Secure; SameSite=Strict
+note right: JWT Payload:\n\
+{\n\
+  "use": "auth",\n\
+  "exp": <current timestamp + 1 hour>,\n\
+  "sub": <user.id>,\n\
+  "rti": {\n\
+    "email": <user.email>\n\
+    "email_verified": <user.email_verified>\n\
+  },\n\
+}
+
+frontend --> user: Render Home Page
+end
+
+end
+
+end
+
+
+@enduml

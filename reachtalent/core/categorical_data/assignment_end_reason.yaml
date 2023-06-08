@@ -1,0 +1,13 @@
+label: "Assignment End Reason"
+category_id: 3
+description: "Reason that the assignment has ended."
+items:
+  voluntary:
+    label: "Voluntary Assignment End"
+    description: "Worker decides to leave position."
+  involuntary:
+    label: "Involuntary Assignment End"
+    description: "Employer decides to remove worker from position."
+  completed:
+    label: "Assignment Completed"
+    description: "Assignment is complete."
