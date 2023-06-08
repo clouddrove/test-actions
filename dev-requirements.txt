@@ -906,9 +906,9 @@ webargs==8.2.0 \
     --hash=sha256:6746327faf549533bf30be7333f99541b6c60a85f23acf1bb0bea68498e3bcd7 \
     --hash=sha256:99d68940c452e07726485a15fef43f12f8ae6c0c5b391bcba76065d4527fb85d
     # via reachtalent (pyproject.toml)
-werkzeug==2.2.2 \
-    --hash=sha256:7ea2d48322cc7c0f8b3a215ed73eabd7b5d75d0b50e31ab006286ccff9e00b8f \
-    --hash=sha256:f979ab81f58d7318e064e99c4506445d60135ac5cd2e177a2de0089bfd4c9bd5
+werkzeug==2.2.3 \
+    --hash=sha256:2e1ccc9417d4da358b9de6f174e3ac094391ea1d4fbef2d667865d819dfd0afe \
+    --hash=sha256:56433961bc1f12533306c624f3be5e744389ac61d722175d543e1751285da612
     # via
     #   flask
     #   flask-dance
