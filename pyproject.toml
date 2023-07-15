@@ -24,7 +24,7 @@ dependencies = [
     "apispec[marshmallow]==6.0.2",
     "apispec-webframeworks==0.5.2",
     "PyJWT==2.6.0",
-    "cryptography==39.0.1",
+    "cryptography==41.0.2",
     "webargs==8.2.0",
     "simplejson==3.18.3",
     "google-api-python-client==2.81.0",
